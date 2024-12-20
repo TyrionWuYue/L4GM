@@ -4,11 +4,14 @@
     <img src="assets/teaser.jpg">
 </p>
 
-[**Paper**](https://arxiv.org/abs/2406.10324) | [**Project Page**](https://research.nvidia.com/labs/toronto-ai/l4gm/) | [**Model Weights**](https://huggingface.co/jiawei011/L4GM)
+[**Paper**](https://arxiv.org/abs/2406.10324) | [**Project Page**](https://research.nvidia.com/labs/toronto-ai/l4gm/) | [**Model Weights**](https://huggingface.co/jiawei011/L4GM) | [**Gradio Demo**](https://huggingface.co/spaces/fffiloni/L4GM-demo)
 
 We present L4GM, the first 4D Large Reconstruction Model that produces animated objects from a single-view video input -- in a single feed-forward pass that takes only a second.
 
 ---
+
+### Demo
+We thank [@fffiloni](https://huggingface.co/fffiloni) for hosting the Gradio demo! <a href="https://huggingface.co/spaces/fffiloni/L4GM-demo"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Gradio%20Demo-Huggingface-orange"></a>
 
 ### Install
 ```bash
