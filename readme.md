@@ -10,8 +10,8 @@ We present L4GM, the first 4D Large Reconstruction Model that produces animated 
 
 ---
 
-### Demo
-We thank [@fffiloni](https://huggingface.co/fffiloni) for hosting the Gradio demo! <a href="https://huggingface.co/spaces/fffiloni/L4GM-demo"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Gradio%20Demo-Huggingface-orange"></a>
+### News
+- 2024.Dec.20: We thank [@fffiloni](https://huggingface.co/fffiloni) for hosting the Gradio demo! <a href="https://huggingface.co/spaces/fffiloni/L4GM-demo"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Gradio%20Demo-Huggingface-orange"></a>
 
 ### Install
 ```bash
