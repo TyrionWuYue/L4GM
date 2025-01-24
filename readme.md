@@ -37,6 +37,8 @@ python infer_4d.py big --workspace results --resume pretrained/recon.safetensors
 ### Training
 Render Objaverse with Blender scripts in the `blender_scripts` folder first.
 
+You may render only our filtered subset here [google drive](https://drive.google.com/file/d/16lZ_lEV6BgrP9vwTJznG91iDjbWkMcTz/view?usp=sharing).
+
 Download pretrained [LGM](https://huggingface.co/ashawkey/LGM/blob/main/model_fixrot.safetensors) to `pretrained/model_fixrot.safetensors`.
 
 L4GM model training:
