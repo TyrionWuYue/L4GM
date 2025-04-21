@@ -12,6 +12,8 @@ tqdm
 kiui >= 0.2.3
 roma
 plyfile
+opencv-python
+opencv-python-headless
 
 # mvdream
 diffusers==0.27.2

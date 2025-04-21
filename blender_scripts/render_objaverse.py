@@ -13,6 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Blender script to render images of 3D models.
+
+This script is used to render images of 3D models. It takes in a list of paths
+to .glb files and renders images of each model. The images are from rotating the
+object around the origin. The images are saved to the output directory.
+
+Example usage:
+    blender -b -P blender_script.py -- \
+        --obj my_object.glb \
+        --output_dir ./rendered_objaverse_dataset \
+
+"""
+
 import argparse, sys, os, math, re
 import bpy
 from mathutils import Vector, Matrix
@@ -46,7 +59,7 @@ parser.add_argument(
     '--views', type=int, default=4,
     help='number of views to be rendered')
 parser.add_argument(
-    'obj', type=str,
+    '--obj', type=str,
     help='Path to the obj file to be rendered.')
 parser.add_argument(
     '--output_folder', type=str, default='/tmp',
