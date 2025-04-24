@@ -16,6 +16,7 @@ Blender env
 
 
 blender/blender -b -P blender_scripts/render_objaverse.py -- \
-    --obj ../objaverse_dataset/glbs/000-049/61bb272c9ea149e18511c2e9c6a77d49.glb \
+    --obj ../objaverse_dataset/glbs/000-000/0013bdaec08345ec9fd03214030baeb2.glb \
     --output_folder ../rendered_objaverse_dataset \
-    --gpu 1
+    --gpu 1 \
+    --animation_idx 16

@@ -4,9 +4,9 @@ import json
 import urllib.request
 import gzip
 
-ROOT_PATH = '/inspire/hdd/ws-f4d69b29-e0a5-44e6-bd92-acf4de9990f0/public-project/fengkairui-25026'
-BASE_PATH = '/inspire/hdd/ws-f4d69b29-e0a5-44e6-bd92-acf4de9990f0/public-project/fengkairui-25026/objaverse_animated_metadata'
-DOWNLOAD_PATH = '/inspire/hdd/ws-f4d69b29-e0a5-44e6-bd92-acf4de9990f0/public-project/fengkairui-25026/objaverse_dataset'
+ROOT_PATH = '.'
+BASE_PATH = './objaverse_animated_metadata'
+DOWNLOAD_PATH = './objaverse_dataset'
 
 def filter_animation():
     metadata_path = os.path.join(BASE_PATH, "metadata")
@@ -31,21 +31,23 @@ def filter_animation():
 
 
 if __name__ == '__main__':
-    output_json_path = os.path.join(ROOT_PATH, "animated_data_paths.json")
-    animation_list = filter_animation()
-    print(f"Sample Count. {len(animation_list)}")
-    with open(output_json_path, "w") as f:
-        json.dump(animation_list, f)
+    # output_json_path = os.path.join(ROOT_PATH, "animated_data_paths.json")
+    # animation_list = filter_animation()
+    # print(f"Sample Count. {len(animation_list)}")
+    # with open(output_json_path, "w") as f:
+    #     json.dump(animation_list, f)
     
-    with open(output_json_path, 'r') as f:
-        entries = json.load(f)
-    unique_pairs = set()
-    for entry in entries:
-        parts = entry.strip().split('/')
-        if len(parts) >= 2:
-            i_id, uid = parts[0], parts[1]
-            unique_pairs.add(f"{i_id}/{uid}")
-    unique_pairs = list(unique_pairs)
+    # with open(output_json_path, 'r') as f:
+    #     entries = json.load(f)
+    # unique_pairs = set()
+    # for entry in entries:
+    #     parts = entry.strip().split('/')
+    #     if len(parts) >= 2:
+    #         i_id, uid = parts[0], parts[1]
+    #         unique_pairs.add(f"{i_id}/{uid}")
+    # unique_pairs = list(unique_pairs)
+
+    unique_pairs = ["000-000/0013bdaec08345ec9fd03214030baeb2"]
     
     print(f"glb Count. {len(unique_pairs)}")
 
