@@ -15,8 +15,44 @@ Blender env
 ./blender/3.2/python/bin/python3.10 -m pip install opencv-python loguru
 
 
+8FPS
+32 random cameras
 blender/blender -b -P blender_scripts/render_objaverse.py -- \
-    --obj ../objaverse_dataset/glbs/000-000/0013bdaec08345ec9fd03214030baeb2.glb \
-    --output_folder ../rendered_objaverse_dataset \
-    --gpu 1 \
-    --animation_idx 16
+    --obj ../objaverse_dataset/0013bdaec08345ec9fd03214030baeb2.glb \
+    --output_folder ../random_clip \
+    --views 32 \
+    --gpu 8 \
+    --camera_option random \
+    --animation_idx 1 \
+    --downsample 3
+
+16 fixed cameras
+blender/blender -b -P blender_scripts/render_objaverse.py -- \
+    --obj ../objaverse_dataset/0013bdaec08345ec9fd03214030baeb2.glb \
+    --output_folder ../fixed_16_clip \
+    --views 16 \
+    --gpu 8 \
+    --camera_option fixed \
+    --animation_idx 1 \
+    --downsample 3
+
+24FPS
+32 random cameras
+blender/blender -b -P blender_scripts/render_objaverse.py -- \
+    --obj ../objaverse_dataset/0013bdaec08345ec9fd03214030baeb2.glb \
+    --output_folder ../random_24fps \
+    --views 32 \
+    --gpu 8 \
+    --camera_option random \
+    --animation_idx 1 \
+
+
+16 fixed cameras
+blender/blender -b -P blender_scripts/render_objaverse.py -- \
+    --obj ../objaverse_dataset/0013bdaec08345ec9fd03214030baeb2.glb \
+    --output_folder ../fixed_16_24fps \
+    --views 16 \
+    --gpu 8 \
+    --camera_option fixed \
+    --animation_idx 16 \
+

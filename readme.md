@@ -53,6 +53,20 @@ accelerate launch \
     --prob_cam_jitter 0 \
     --datalist data_train/datalist_8fps.txt \
 ```
+
+```sh
+NCCL_DEBUG=WARN NCCL_P2P_DISABLE=1 NCCL_IB_DISABLE=1 \
+accelerate launch \
+    --config_file "acc_configs/gpu8.yaml" \
+    main.py big \
+    --workspace "workspace_recon" \
+    --resume "pretrained/model_fixrot.safetensors" \
+    --data_mode 4d \
+    --num_epochs 200 \
+    --prob_cam_jitter 0 \
+    --datalist "data_train/datalist_8fps.txt"
+```
+
 Our released checkpoint uses `--num_epochs 500`.
 
 4D Interpolation model training:

@@ -96,6 +96,10 @@ parser.add_argument(
 parser.add_argument(
     '--downsample', type=int, default=1,
     help='Downsample ratio. No downsample by default')
+parser.add_argument(
+    '--frames_per_sample', type=int, default=24,
+    help='Number of frames per output sample'
+)
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 args = parser.parse_args(argv)
@@ -104,7 +108,7 @@ args = parser.parse_args(argv)
 model_identifier = os.path.split(args.obj)[1].split('.')[0]
 synset_idx = args.obj.split('/')[-2]
 
-save_root = os.path.join(os.path.abspath(args.output_folder),  synset_idx, model_identifier, f'{args.animation_idx:03d}')
+save_root = os.path.join(os.path.abspath(args.output_folder),  synset_idx, model_identifier)
 
 # Set up rendering
 context = bpy.context
@@ -207,6 +211,8 @@ for obj in bpy.context.selected_objects:
             
 num_frames = args.fixed_animation_length if args.fixed_animation_length != -1 else max_frame
 num_frames = num_frames // args.downsample
+frames_per_sample = args.frames_per_sample // args.downsample
+animation_idx = args.animation_idx
 
 if num_frames == 0:
     print("No animation!")
@@ -463,6 +469,7 @@ rotation_mode = 'XYZ'
 
 np.random.seed(args.seed)
 
+
 if args.camera_option == "fixed":
     for scene in bpy.data.scenes:
         scene.cycles.device = 'GPU'
@@ -471,80 +478,103 @@ if args.camera_option == "fixed":
     rotation_angle = 0.
 
     for view_idx in range(args.views):
-        img_folder = os.path.join(save_root, f'{view_idx:03d}', 'img')
-        mask_folder = os.path.join(save_root, f'{view_idx:03d}', 'mask')
-        camera_folder = os.path.join(save_root, f'{view_idx:03d}', 'camera')
+        sample_cnt = num_frames // frames_per_sample
+        if sample_cnt == 0:
+            continue
 
-        os.makedirs(img_folder, exist_ok=True)
-        os.makedirs(mask_folder, exist_ok=True)
-        os.makedirs(camera_folder, exist_ok=True)
-        
-        np.save(os.path.join(camera_folder, 'rotation'), np.array([rotation_angle + view_idx * stepsize for _ in range(num_frames)]))
-        np.save(os.path.join(camera_folder, 'elevation'), np.array([elevation_angle for _ in range(num_frames)]))
+        for sample_idx in range(sample_cnt):
+            curr_suffix = f"{animation_idx:03d}-{sample_idx:03d}/{view_idx:03d}"
 
-        cam_empty.rotation_euler[2] = math.radians(rotation_angle + view_idx * stepsize)
-        cam_empty.rotation_euler[0] = math.radians(elevation_angle)
-        
-        # save camera RT matrix
-        rt_matrix = get_3x4_RT_matrix_from_blender(cam)
-        rt_matrix_path = os.path.join(camera_folder, "rt_matrix.npy")
-        np.save(rt_matrix_path, rt_matrix)
-        for i in range(0, num_frames):
-            bpy.context.scene.frame_set(i * args.downsample)
-            render_file_path = os.path.join(img_folder,'%03d.png' % (i))
-            scene.render.filepath = render_file_path
-            bpy.ops.render.render(write_still=True)
+            img_folder = os.path.join(save_root, curr_suffix, 'img')
+            mask_folder = os.path.join(save_root, curr_suffix, 'mask')
+            camera_folder = os.path.join(save_root, curr_suffix, 'camera')
 
-        for i in range(0, num_frames):
-            img = cv2.imread(os.path.join(img_folder, '%03d.png' % (i)), cv2.IMREAD_UNCHANGED)
-            mask =  img[:, :, 3:4] / 255.0
-            white_img = img[:, :, :3] * mask + np.ones_like(img[:, :, :3]) * (1 - mask) * 255
-            white_img = np.clip(white_img, 0, 255)
-            cv2.imwrite(os.path.join(img_folder, '%03d.jpg' % (i)), white_img)
-            cv2.imwrite(os.path.join(mask_folder, '%03d.png'%(i)), img[:, :, 3])
-            os.system('rm %s'%(os.path.join(img_folder, '%03d.png' % (i))))
-        
+            os.makedirs(img_folder, exist_ok=True)
+            os.makedirs(mask_folder, exist_ok=True)
+            os.makedirs(camera_folder, exist_ok=True)
+            
+            np.save(os.path.join(camera_folder, 'rotation'), np.array([rotation_angle + view_idx * stepsize for _ in range(frames_per_sample)]))
+            np.save(os.path.join(camera_folder, 'elevation'), np.array([elevation_angle for _ in range(frames_per_sample)]))
+
+            cam_empty.rotation_euler[2] = math.radians(rotation_angle + view_idx * stepsize)
+            cam_empty.rotation_euler[0] = math.radians(elevation_angle)
+            
+            # save camera RT matrix
+            rt_matrix = get_3x4_RT_matrix_from_blender(cam)
+            rt_matrix_path = os.path.join(camera_folder, "rt_matrix.npy")
+            np.save(rt_matrix_path, rt_matrix)
+
+            start_frame = sample_idx * frames_per_sample
+            end_frame = (sample_idx + 1) * frames_per_sample
+            for i in range(0, frames_per_sample):
+                global_frame_idx = start_frame + i
+                bpy.context.scene.frame_set(global_frame_idx * args.downsample)
+                render_file_path = os.path.join(img_folder,'%03d.png' % (i))
+                scene.render.filepath = render_file_path
+                bpy.ops.render.render(write_still=True)
+
+            for i in range(0, frames_per_sample):
+                img = cv2.imread(os.path.join(img_folder, '%03d.png' % (i)), cv2.IMREAD_UNCHANGED)
+                mask =  img[:, :, 3:4] / 255.0
+                white_img = img[:, :, :3] * mask + np.ones_like(img[:, :, :3]) * (1 - mask) * 255
+                white_img = np.clip(white_img, 0, 255)
+                cv2.imwrite(os.path.join(img_folder, '%03d.jpg' % (i)), white_img)
+                cv2.imwrite(os.path.join(mask_folder, '%03d.png'%(i)), img[:, :, 3])
+                os.system('rm %s'%(os.path.join(img_folder, '%03d.png' % (i))))
+
 elif args.camera_option == "random":
     for scene in bpy.data.scenes:
         scene.cycles.device = 'GPU'
     
+    elevation_angle = 0.
+    rotation_angle = 0.
+    
     for view_idx in range(args.views):
+        sample_cnt = num_frames // frames_per_sample
+        if sample_cnt == 0:
+            continue
         elevation_angle = np.random.rand(1) * 35 - 5 # [-5, 30]
         rotation_angle = np.random.rand(1) * 360
         
-        img_folder = os.path.join(save_root, f'{view_idx:03d}', 'img')
-        mask_folder = os.path.join(save_root, f'{view_idx:03d}', 'mask')
-        camera_folder = os.path.join(save_root, f'{view_idx:03d}', 'camera')
+        for sample_idx in range(sample_cnt):
+            curr_suffix = f"{animation_idx:03d}-{sample_idx:03d}/{view_idx:03d}"
 
-        os.makedirs(img_folder, exist_ok=True)
-        os.makedirs(mask_folder, exist_ok=True)
-        os.makedirs(camera_folder, exist_ok=True)
-        
-        np.save(os.path.join(camera_folder, 'rotation'), np.array([rotation_angle for _ in range(num_frames)]))
-        np.save(os.path.join(camera_folder, 'elevation'), np.array([elevation_angle for _ in range(num_frames)]))
-        
-        cam_empty.rotation_euler[2] = math.radians(rotation_angle)
-        cam_empty.rotation_euler[0] = math.radians(elevation_angle)
-        
-        # save camera RT matrix
-        rt_matrix = get_3x4_RT_matrix_from_blender(cam)
-        rt_matrix_path = os.path.join(camera_folder, "rt_matrix.npy")
-        np.save(rt_matrix_path, rt_matrix)
-        
-        for i in range(0, num_frames):
-            bpy.context.scene.frame_set(i * args.downsample)
-            render_file_path = os.path.join(img_folder,'%03d.png' % (i))
-            scene.render.filepath = render_file_path
-            bpy.ops.render.render(write_still=True)
+            img_folder = os.path.join(save_root, curr_suffix, 'img')
+            mask_folder = os.path.join(save_root, curr_suffix, 'mask')
+            camera_folder = os.path.join(save_root, curr_suffix, 'camera')
 
-        for i in range(0, num_frames):
-            img = cv2.imread(os.path.join(img_folder, '%03d.png' % (i)), cv2.IMREAD_UNCHANGED)
-            mask =  img[:, :, 3:4] / 255.0
-            white_img = img[:, :, :3] * mask + np.ones_like(img[:, :, :3]) * (1 - mask) * 255
-            white_img = np.clip(white_img, 0, 255)
-            cv2.imwrite(os.path.join(img_folder, '%03d.jpg' % (i)), white_img)
-            cv2.imwrite(os.path.join(mask_folder, '%03d.png'%(i)), img[:, :, 3])
-            os.system('rm %s'%(os.path.join(img_folder, '%03d.png' % (i))))
+            os.makedirs(img_folder, exist_ok=True)
+            os.makedirs(mask_folder, exist_ok=True)
+            os.makedirs(camera_folder, exist_ok=True)
+            
+            np.save(os.path.join(camera_folder, 'rotation'), np.array([rotation_angle for _ in range(frames_per_sample)]))
+            np.save(os.path.join(camera_folder, 'elevation'), np.array([elevation_angle for _ in range(frames_per_sample)]))
+            
+            cam_empty.rotation_euler[2] = math.radians(rotation_angle)
+            cam_empty.rotation_euler[0] = math.radians(elevation_angle)
+            
+            # save camera RT matrix
+            rt_matrix = get_3x4_RT_matrix_from_blender(cam)
+            rt_matrix_path = os.path.join(camera_folder, "rt_matrix.npy")
+            np.save(rt_matrix_path, rt_matrix)
+            
+            start_frame = sample_idx * frames_per_sample
+            end_frame = (sample_idx + 1) * frames_per_sample
+            for i in range(0, frames_per_sample):
+                global_frame_idx = start_frame + i
+                bpy.context.scene.frame_set(global_frame_idx * args.downsample)
+                render_file_path = os.path.join(img_folder,'%03d.png' % (i))
+                scene.render.filepath = render_file_path
+                bpy.ops.render.render(write_still=True)
+
+            for i in range(0, frames_per_sample):
+                img = cv2.imread(os.path.join(img_folder, '%03d.png' % (i)), cv2.IMREAD_UNCHANGED)
+                mask =  img[:, :, 3:4] / 255.0
+                white_img = img[:, :, :3] * mask + np.ones_like(img[:, :, :3]) * (1 - mask) * 255
+                white_img = np.clip(white_img, 0, 255)
+                cv2.imwrite(os.path.join(img_folder, '%03d.jpg' % (i)), white_img)
+                cv2.imwrite(os.path.join(mask_folder, '%03d.png'%(i)), img[:, :, 3])
+                os.system('rm %s'%(os.path.join(img_folder, '%03d.png' % (i))))
     
 else:
     raise NotImplemented
