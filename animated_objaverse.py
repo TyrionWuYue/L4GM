@@ -1,8 +1,11 @@
 from tqdm import tqdm
 import os
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" 
+
 import json
 import urllib.request
 import gzip
+from huggingface_hub import hf_hub_download
 
 ROOT_PATH = '.'
 BASE_PATH = './objaverse_animated_metadata'
@@ -31,33 +34,43 @@ def filter_animation():
 
 
 if __name__ == '__main__':
-    # output_json_path = os.path.join(ROOT_PATH, "animated_data_paths.json")
+    output_json_path = os.path.join(ROOT_PATH, "animated_data_paths.json")
+    
     # animation_list = filter_animation()
     # print(f"Sample Count. {len(animation_list)}")
     # with open(output_json_path, "w") as f:
     #     json.dump(animation_list, f)
     
-    # with open(output_json_path, 'r') as f:
-    #     entries = json.load(f)
-    # unique_pairs = set()
-    # for entry in entries:
-    #     parts = entry.strip().split('/')
-    #     if len(parts) >= 2:
-    #         i_id, uid = parts[0], parts[1]
-    #         unique_pairs.add(f"{i_id}/{uid}")
-    # unique_pairs = list(unique_pairs)
-
-    unique_pairs = ["000-000/0013bdaec08345ec9fd03214030baeb2"]
+    with open(output_json_path, 'r') as f:
+        entries = json.load(f)
+    unique_pairs = set()
+    for entry in entries:
+        parts = entry.strip().split('/')
+        if len(parts) >= 2:
+            i_id, uid = parts[0], parts[1]
+            unique_pairs.add(f"{i_id}/{uid}")
+    unique_pairs = list(unique_pairs)
     
     print(f"glb Count. {len(unique_pairs)}")
 
     for entry in tqdm(unique_pairs):
+        print(entry)
+        # try:
+        #     i_id, uid = entry.split('/')
+        #     rel_path = f"glbs/{i_id}/{uid}.glb"
+        #     hf_url = f"https://huggingface.co/datasets/allenai/objaverse/resolve/main/{rel_path}"
+        #     local_path = os.path.join(DOWNLOAD_PATH, rel_path)
+        #     os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        #     urllib.request.urlretrieve(hf_url, local_path)
         try:
             i_id, uid = entry.split('/')
-            rel_path = f"glbs/{i_id}/{uid}.glb"
-            hf_url = f"https://huggingface.co/datasets/allenai/objaverse/resolve/main/{rel_path}"
-            local_path = os.path.join(DOWNLOAD_PATH, rel_path)
-            os.makedirs(os.path.dirname(local_path), exist_ok=True)
-            urllib.request.urlretrieve(hf_url, local_path)
+            download = hf_hub_download(
+                repo_id='allenai/objaverse',
+                repo_type='dataset',
+                filename=f'{i_id}/{uid}.glb',
+                subfolder='glbs',
+                local_dir=DOWNLOAD_PATH,
+                etag_timeout=1000,
+            )
         except Exception as e:
             print(f"Failed to download {entry}: {e}")
