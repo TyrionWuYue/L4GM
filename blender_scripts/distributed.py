@@ -11,7 +11,7 @@ import tyro
 
 @dataclass
 class Args:
-    workers_per_gpu: int = 1
+    workers_per_gpu: int = 2
     """number of workers per gpu"""
     input_models_path: str = "animated_data_paths.json"
     """Path to a json file containing a list of 3D object files"""
@@ -53,6 +53,7 @@ def worker(
                 f" --obj objaverse_dataset/glbs/{i_id}/{uid}.glb"
                 f" --output_folder /home/tjwr/rendered_objaverse/random_clip"
                 f" --views 32"
+                f" --fixed_animation_length 24"
                 f" --camera_option random"
                 f" --animation_idx {animation_idx}"
                 f" --downsample 3"

@@ -18,8 +18,8 @@ Blender env
 8FPS
 32 random cameras
 blender/blender -b -P blender_scripts/render_objaverse.py -- \
-    --obj ../objaverse_dataset/0013bdaec08345ec9fd03214030baeb2.glb \
-    --output_folder ../random_clip \
+    --obj objaverse_dataset/glbs/000-000/00a1d892548542c7ab83565070737d6b.glb \
+    --output_folder /home/tjwr/rendered_objaverse/random_clip \
     --views 32 \
     --gpu 8 \
     --camera_option random \
@@ -55,4 +55,3 @@ blender/blender -b -P blender_scripts/render_objaverse.py -- \
     --gpu 8 \
     --camera_option fixed \
     --animation_idx 16 \
-

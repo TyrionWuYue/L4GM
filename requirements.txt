@@ -21,3 +21,7 @@ diffusers==0.27.2
 huggingface_hub==0.23.5
 transformers
 
+
+
+python infer_3d.py big --workspace my_results --resume pretrained/recon.safetensors --num_frames 1 --test_path data_test/lifting1_fg.mp4
+python infer_4d.py big --workspace my_results --resume pretrained/recon.safetensors --interpresume workspace_recon/model.safetensors --num_frames 16 --test_path data_test/lifting1_fg.mp4

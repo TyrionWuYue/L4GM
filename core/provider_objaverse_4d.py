@@ -33,6 +33,7 @@ from kiui.cam import orbit_camera
 import tarfile
 from io import BytesIO
 
+os.environ["DATA_HOME"] = "/home/tjwr/wuyue/L4GM/dataset/"
 IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 
@@ -132,11 +133,11 @@ class ObjaverseDataset(Dataset):
                 else:
                     tar = tar_random
 
-                image_path = os.path.join('.', f'{vid:03d}/img', f'{t:03d}.jpg')
-                mask_path = os.path.join('.', f'{vid:03d}/mask', f'{t:03d}.png')
+                image_path = os.path.join(f'{vid:03d}/img', f'{t:03d}.jpg')
+                mask_path = os.path.join(f'{vid:03d}/mask', f'{t:03d}.png')
 
-                elevation_path = os.path.join('.', f'{vid:03d}/camera', f'elevation.npy')
-                rotation_path = os.path.join('.', f'{vid:03d}/camera', f'rotation.npy')
+                elevation_path = os.path.join(f'{vid:03d}/camera', f'elevation.npy')
+                rotation_path = os.path.join(f'{vid:03d}/camera', f'rotation.npy')
 
                 image = np.frombuffer(tar.extractfile(image_path).read(), np.uint8)
                 image = torch.from_numpy(cv2.imdecode(image, cv2.IMREAD_UNCHANGED).astype(np.float32) / 255) # [512, 512, 4] in [0, 1]

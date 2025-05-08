@@ -75,7 +75,7 @@ proj_matrix[2, 3] = 1
 
 # load image dream
 pipe = MVDreamPipeline.from_pretrained(
-    "pretrained", # remote weights
+    "pretrained/mvdream", # remote weights
     torch_dtype=torch.float16,
     # trust_remote_code=True,
     local_files_only=True,

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -25,7 +26,7 @@ from core.unet import UNet
 from core.options import Options
 from core.gs import GaussianRenderer
 
-
+os.environ['TORCH_HOME'] = '/home/tjwr/wuyue/L4GM/pretrained'
 
 class LGM(nn.Module):
     def __init__(

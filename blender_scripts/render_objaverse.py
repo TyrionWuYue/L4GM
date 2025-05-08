@@ -550,8 +550,8 @@ elif args.camera_option == "random":
             np.save(os.path.join(camera_folder, 'rotation'), np.array([rotation_angle for _ in range(frames_per_sample)]))
             np.save(os.path.join(camera_folder, 'elevation'), np.array([elevation_angle for _ in range(frames_per_sample)]))
             
-            cam_empty.rotation_euler[2] = math.radians(rotation_angle)
-            cam_empty.rotation_euler[0] = math.radians(elevation_angle)
+            cam_empty.rotation_euler[2] = math.radians(rotation_angle.item())
+            cam_empty.rotation_euler[0] = math.radians(elevation_angle.item())
             
             # save camera RT matrix
             rt_matrix = get_3x4_RT_matrix_from_blender(cam)
